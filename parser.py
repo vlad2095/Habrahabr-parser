@@ -18,14 +18,18 @@ class HabrParser:
 		if res.status_code < 400:
 			return res.content
 		
-	def parse(self):
-		pass
+	def parse(self, html):
+		html_tree = lxml.html.fromstring(html)
+		titles = html_tree.xpath('.//div[@class="posts_list"]//h2[@class="post__title"]//a[@class="post__title_link"]')
+		for title in titles:
+		
+			print(title.text_content())
 		
 	def run(self):
 		pass
 		
 if __name__ == "__main__":
 
-	parser = HabrParser("https://www.olx.ua/list/")
+	parser = HabrParser("https://habrahabr.ru/")
 	page = parser.get_page()
-	print (page)
+	parser.parse(page)
