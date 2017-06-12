@@ -2,6 +2,8 @@ import time
 import requests
 import lxml.html
 
+
+
 class HabrParser:
         
     def __init__(self, base_url):
@@ -17,16 +19,24 @@ class HabrParser:
                         
         if res.status_code < 400:
             return res.content
-                
+    
+    def get_path(self, html_tree, link):
+        return html_tree.xpath(link)
+
+    def get_link(self, title):
+        return title.get('href')
+
     def parse(self, html):
         html_tree = lxml.html.fromstring(html)
-        titles_path = './/div[@class="posts_list"]//h2[@class="post__title"]//a[@class="post__title_link"]'
-        titles = html_tree.xpath(titles_path)
-        mains_path = './/div[@class="posts_list"]//div[@class="content html_format"]'
-        maintext = html_tree.xpath(mains_path)
+        titles_link = './/div[@class="posts_list"]//h2[@class="post__title"]//a[@class="post__title_link"]'
+        synopsis_link = './/div[@class="posts_list"]//div[@class="content html_format"]'
+        titles = parser.get_path(html_tree, titles_link)
+        synopsises = parser.get_path(html_tree, synopsis_link)
+        
         for i in range(2):
             print("Title: " + titles[i].text_content()+'\n')
-            print("Text: " + maintext[i].text_content()+'\n')
+            print("Link: " + parser.get_link(titles[i]) + '\n')
+            print("Text: " + synopsises[i].text_content()+'\n')
 
                 
     def run(self):
