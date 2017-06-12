@@ -26,24 +26,33 @@ class HabrParser:
     def get_link(self, title):
         return title.get('href')
 
-    def parse(self, html):
-        html_tree = lxml.html.fromstring(html)
-        titles_link = './/div[@class="posts_list"]//h2[@class="post__title"]//a[@class="post__title_link"]'
-        synopsis_link = './/div[@class="posts_list"]//div[@class="content html_format"]'
-        titles = parser.get_path(html_tree, titles_link)
-        synopsises = parser.get_path(html_tree, synopsis_link)
-        
-        for i in range(2):
+    def get_info(self, html):
+        try:    
+            html_tree = lxml.html.fromstring(html)
+            titles_link = './/div[@class="posts_list"]//h2[@class="post__title"]//a[@class="post__title_link"]'
+            synopsis_link = './/div[@class="posts_list"]//div[@class="content html_format"]'
+            titles = parser.get_path(html_tree, titles_link)
+            synopsises = parser.get_path(html_tree, synopsis_link)
+        except (IndexError, AttributeError):
+            return
+
+        for i in range(len(titles)):
             print("Title: " + titles[i].text_content()+'\n')
             print("Link: " + parser.get_link(titles[i]) + '\n')
             print("Text: " + synopsises[i].text_content()+'\n')
 
                 
     def run(self):
-        pass
+        while True:
+            page = self.get_page()
+            if page is None:
+                time.sleep(0.5)
+                continue
+            self.get_info
+            time.sleep(0.5)
                 
 if __name__ == "__main__":
 
         parser = HabrParser("https://habrahabr.ru/")
         page = parser.get_page()
-        parser.parse(page)
+        parser.get_info(page)
