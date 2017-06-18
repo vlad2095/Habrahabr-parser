@@ -1,6 +1,7 @@
 import time
 import requests
 import lxml.html
+from database_for_parser import Postgresdb
 
 
 
@@ -35,13 +36,19 @@ class HabrParser:
             synopsises = parser.get_path(html_tree, synopsis_link)
         except (IndexError, AttributeError):
             return
+        titles_list = []
+        #for i in range(len(titles)):
+        for i in range(3):
+            title = titles[i].text_content()
+            #link = parser.get_link(titles[i])
+            print("Title: " + title+'\n')
+            titles_list.append(title)
+            #print("Link: " + parser.get_link(titles[i]) + '\n')
+            #print("Text: " + synopsises[i].text_content()+'\n')
+        for testi in titles_list:
+            print testi
 
-        for i in range(len(titles)):
-            print("Title: " + titles[i].text_content()+'\n')
-            print("Link: " + parser.get_link(titles[i]) + '\n')
-            print("Text: " + synopsises[i].text_content()+'\n')
-
-                
+        return titles_list
     def run(self):
         while True:
             page = self.get_page()
@@ -55,4 +62,11 @@ if __name__ == "__main__":
 
         parser = HabrParser("https://habrahabr.ru/")
         page = parser.get_page()
-        parser.get_info(page)
+        titles = parser.get_info(page)
+        db = Postgresdb()
+        db.connect()
+
+        pass
+
+        #db.close()
+

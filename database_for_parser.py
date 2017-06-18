@@ -5,6 +5,9 @@ class Postgresdb:
 	def __init__(self):
 		self.database = None
 		self.cursor = None
+		
+	def __enter__(self):
+		return self
 
 	def __exit__(self, type, value, tb):
 		self.close()
@@ -25,16 +28,14 @@ class Postgresdb:
 	def create_table(self):
 		pass
 
-	def add_article(self):
-		add_title()
-		add_text()
-		add_link()
+	def add_article(self,title, link, article):
+		cursor.execute("INSERT INTO articles (title, link, article) values(%s, %s,%s)", title, link, article)
 
-	def add_title(self):
-		pass
+	def print_all(self, table):
+		cursor.execute("SELECT * FROM %s;", table)
 
-	def add_text(self):
-		pass
-	def add_link(self):
-		pass
+	def database(self):
+		return self.database
+	def cursor(self):
+		return self.cursor
 
