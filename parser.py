@@ -4,7 +4,6 @@ import lxml.html
 from database_for_parser import Postgresdb
 
 
-
 class HabrParser:
         
     def __init__(self, base_url):
@@ -37,14 +36,9 @@ class HabrParser:
         except (IndexError, AttributeError):
             return
         titles_list = []
-        #for i in range(len(titles)):
-        for i in range(3):
-            title = titles[i].text_content()
-            #link = parser.get_link(titles[i])
-            print("Title: " + title+'\n')
+        for one in titles:
+            title = one.text_content()
             titles_list.append(title)
-            #print("Link: " + parser.get_link(titles[i]) + '\n')
-            #print("Text: " + synopsises[i].text_content()+'\n')
         for testi in titles_list:
             print testi
 
@@ -65,8 +59,6 @@ if __name__ == "__main__":
         titles = parser.get_info(page)
         db = Postgresdb()
         db.connect()
-
-        pass
-
-        #db.close()
+        cursor = db.cursor()
+        db.create_table(cursor)
 
