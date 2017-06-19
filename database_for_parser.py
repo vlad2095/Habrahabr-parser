@@ -12,7 +12,7 @@ class Postgresdb:
 		self.cursor = self.database.cursor()
 
 	def create_table(self, name):
-		self.cursor.execute("CREATE TABLE IF NOT EXISTS {0} (id SERIAL PRIMARY KEY, title VARCHAR(255) NOT NULL UNIQUE);".format(name))
+		self.cursor.execute("CREATE TABLE IF NOT EXISTS {0} (id SERIAL PRIMARY KEY, title VARCHAR(255) NOT NULL);".format(name))
 		self.database.commit()
 
 	def close(self):

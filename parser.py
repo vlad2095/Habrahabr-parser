@@ -2,7 +2,12 @@ import time
 import requests
 import lxml.html
 from database_for_parser import Postgresdb
+from string import replace
 
+def fix_quotes(string):
+    temp = replace(string, "'", "\"")
+    fixed = replace(temp, '"','\"')
+    return fixed
 
 class HabrParser:
         
@@ -42,6 +47,10 @@ class HabrParser:
 
         return titles_list
 
+
+
+
+
     def run(self):
         while True:
             page = self.get_page()
@@ -52,14 +61,15 @@ class HabrParser:
             time.sleep(0.5)
 
 if __name__ == "__main__":
-
-        parser = HabrParser("https://habrahabr.ru/")
-        page = parser.get_page()
-        titles = parser.get_info(page)
         db = Postgresdb()
         db.connect()
         db.create_table("titles")
-        for title in titles:
-            print(title)
-            db.inserti(title)
+        for i in range(1,3,1):
+            parser = HabrParser("https://habrahabr.ru/all/page{0}/".format(i))
+            page = parser.get_page()
+            titles = parser.get_info(page)
+            for title in titles:
+                title = fix_quotes(title)
+                print(title)
+                db.inserti(title)
         db.close()
