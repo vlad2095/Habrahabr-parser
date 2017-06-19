@@ -60,5 +60,6 @@ if __name__ == "__main__":
         db.connect()
         db.create_table("titles")
         for title in titles:
+            print(title)
             db.inserti(title)
         db.close()
