@@ -37,21 +37,20 @@ class HabrParser:
             return
         titles_list = []
         for one in titles:
-            title = one.text_content()
+            title = one.text_content().encode('utf-8')
             titles_list.append(title)
-        for testi in titles_list:
-            print testi
 
         return titles_list
+
     def run(self):
         while True:
             page = self.get_page()
             if page is None:
                 time.sleep(0.5)
                 continue
-            self.get_info
+            self.get_info(page)
             time.sleep(0.5)
-                
+
 if __name__ == "__main__":
 
         parser = HabrParser("https://habrahabr.ru/")
@@ -59,6 +58,7 @@ if __name__ == "__main__":
         titles = parser.get_info(page)
         db = Postgresdb()
         db.connect()
-        cursor = db.cursor()
-        db.create_table(cursor)
-
+        db.create_table("titles")
+        for title in titles:
+            db.inserti(title)
+        db.close()
