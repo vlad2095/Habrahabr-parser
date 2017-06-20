@@ -1,8 +1,9 @@
-import time
-import requests
+#coding: utf-8
+
 import lxml.html
 import urllib
-from database_for_parser import Postgresdb
+
+from db_handler import Postgresdb
 from string import replace
 from settings import TABLE_NAME
 
@@ -17,9 +18,7 @@ class Parser:
         self.base_url = base_url
     
     def get_page(self):
-        res = urllib.urlopen(self.base_url).read()
-        print(res)
-        return res
+        return urllib.urlopen(self.base_url).read()
 
     def get_html_tree(self, html):
         return lxml.html.fromstring(html)
