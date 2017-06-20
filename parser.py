@@ -1,8 +1,10 @@
 import time
 import requests
 import lxml.html
+import urllib
 from database_for_parser import Postgresdb
 from string import replace
+from settings import TABLE_NAME
 
 def fix_quotes(string):
     temp = replace(string, "'", "\"")
@@ -15,14 +17,9 @@ class Parser:
         self.base_url = base_url
     
     def get_page(self):
-                
-        try:
-            res = requests.get(self.base_url)
-        except requests.ConnectionError:
-            return
-                        
-        if res.status_code < 400:
-            return res.content
+        res = urllib.urlopen(self.base_url).read()
+        print(res)
+        return res
 
     def get_html_tree(self, html):
         return lxml.html.fromstring(html)
@@ -63,23 +60,10 @@ class Parser:
 
         return titles_list, link_list
 
-
-
-
-
-    # def run(self):
-    #     while True:
-    #         page = self.get_page()
-    #         if page is None:
-    #             time.sleep(0.5)
-    #             continue
-    #         self.get_info(page)
-    #         time.sleep(0.5)
-
 if __name__ == "__main__":
         db = Postgresdb()
         db.connect()
-        db.create_table("dtb") 
+        db.create_table(TABLE_NAME)
         for i in range(1,3,1):
             print(i)
             parser = Parser("https://habrahabr.ru/all/page{0}/".format(i))

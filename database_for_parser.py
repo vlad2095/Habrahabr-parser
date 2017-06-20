@@ -22,7 +22,8 @@ class Postgresdb:
 
 
 	def inserti(self, title, content):
-		self.cursor.execute("INSERT INTO dtb (title, content) VALUES ('{0}', '{1}')".format(title, content))
+		from settings import TABLE_NAME
+		self.cursor.execute("INSERT INTO {NAME} (title, content) VALUES ('{0}', '{1}')".format(title, content, NAME = TABLE_NAME))
 		self.database.commit()
 
 
