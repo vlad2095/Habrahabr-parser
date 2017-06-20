@@ -80,13 +80,13 @@ if __name__ == "__main__":
         db = Postgresdb()
         db.connect()
         db.create_table("dtb") 
-        for i in range(1,10,1):
+        for i in range(1,3,1):
             print(i)
             parser = Parser("https://habrahabr.ru/all/page{0}/".format(i))
             page = parser.get_page()
             titles, links = parser.get_info(page)
             articles = parser.get_full_text(links)
-            for i in range(10):
+            for i in range(2):
                 print(i)
                 title = fix_quotes(titles[i])
                 article = fix_quotes(articles[i])
