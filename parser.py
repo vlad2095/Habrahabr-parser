@@ -1,16 +1,8 @@
 #coding: utf-8
-
-import lxml.html
 import urllib
-
+import re
 from db_handler import Postgresdb
-from string import replace
 from settings import TABLE_NAME
-
-def fix_quotes(string):
-    temp = replace(string, "'", "\"")
-    fixed = replace(temp, '"','\"')
-    return fixed
 
 class Parser:
         
@@ -20,58 +12,60 @@ class Parser:
     def get_page(self):
         return urllib.urlopen(self.base_url).read()
 
-    def get_html_tree(self, html):
-        return lxml.html.fromstring(html)
+    def get_links(self, page):
+        result = []
+        temp = re.findall(r'<h2> class="post__title"(.*?)</h2', page, re.DOTALL)
+        #temp = re.findall(r'<a href="(.*?)"', page, re.DOTALL)
+        print temp
 
-    def get_link(self, somedata):
-        return somedata.get('href')
+    def list_to_str(self, ls):
+        result = ''
+        for one in ls:
+            result += one
+        return result
 
-    def get_path(self, html_tree, link):
-        return html_tree.xpath(link)
+    def get_title(self, page):
+        result = re.findall(r'<title>(.*?)</title>*', page, re.DOTALL)
+        return parser.list_to_str(result)
 
-    def get_full_text(self, somelist):
-        articles = []
-        path = './/div[@class="content html_format js-mediator-article"]'
-        for link in somelist:
-            link = Parser(link)
-            page = link.get_page()
-            tree = link.get_html_tree(page)
-            links = link.get_path(tree, path)
-            for one in links:
-                text = one.text_content().encode('utf-8')
-                articles.append(text)
-        return(articles)
+    def get_article(self, page):
+        result = re.findall(r'<div class="content html_format js-mediator-article">(.*?)<script*', page, re.DOTALL)
+        return parser.list_to_str(result)
 
-    def get_info(self, html):
-        try:    
-            tree = parser.get_html_tree(html)
-            titles_path = './/div[@class="posts_list"]//h2[@class="post__title"]//a[@class="post__title_link"]'
-            titles = parser.get_path(tree, titles_path)
-        except (IndexError, AttributeError):
-            return
-        titles_list = []
-        link_list = []
-        for one in titles:
-            link = parser.get_link(one)
-            link_list.append(link)
-            title = one.text_content().encode('utf-8')
-            titles_list.append(title)
+    def clean(self, text):
+        result = re.findall(r'>(.*?)</*', text, re.DOTALL)
+        return parser.list_to_str(result)
 
-        return titles_list, link_list
+    def get_data(self, page):
+        article = parser.clean(parser.get_article(page))
+        title = parser.get_title(page)
+        return title, article        
+
+    # def get_data(self, page):
+    #     page = page = parser.get_page()
+    #     article = parser.clean(parser.get_article(page))
+
 
 if __name__ == "__main__":
         db = Postgresdb()
         db.connect()
         db.create_table(TABLE_NAME)
-        for i in range(1,3,1):
-            print(i)
-            parser = Parser("https://habrahabr.ru/all/page{0}/".format(i))
-            page = parser.get_page()
-            titles, links = parser.get_info(page)
-            articles = parser.get_full_text(links)
-            for i in range(2):
-                print(i)
-                title = fix_quotes(titles[i])
-                article = fix_quotes(articles[i])
-                db.inserti(title, article)
-        db.close()
+        #for i in range(1,3,1):
+            #print(i)
+        parser = Parser("https://habrahabr.ru/all/page{0}/".format(1))
+        page = parser.get_page()
+        #print parser
+        test = parser.get_links(page)
+        #print(test)
+        #title, article = parser.get_data(page)
+        #print title, article
+        # titles, links = parser.get_info(page)
+        # articles = parser.get_full_text(links)
+        # for i in range(2):
+        #     print(i)
+        #     title = fix_quotes(titles[i])
+        #     article = fix_quotes(articles[i])
+            #db.inserti(title, article)
+        #db.close()
+
+#<a href=(.*?) class="post__title_link">Запускаем GSM-сеть у себя дома</a>
