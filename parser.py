@@ -3,6 +3,7 @@ import urllib
 import re
 from db_handler import Postgresdb
 from settings import TABLE_NAME
+from string import replace
 
 class Parser:
         
@@ -14,9 +15,18 @@ class Parser:
 
     def get_links(self, page):
         result = []
-        temp = re.findall(r'<h2> class="post__title"(.*?)</h2', page, re.DOTALL)
-        #temp = re.findall(r'<a href="(.*?)"', page, re.DOTALL)
-        print temp
+        temp = re.findall(r'class="posts shortcuts_items"(.*?)class="page__footer"*', page, re.DOTALL)
+        temp = re.findall(r'(?:https?:\/\/)?(?:[\w\.]+)\.(?:[a-z]{2,6}\.?)(?:\/[\w\.]*)*\/?', page, re.DOTALL)
+        for x in temp:            
+            if x.startswith('https://habrahabr.ru/') and re.match('(.*?)(\d+)\/', x) is not None:
+                if not x in result and 'top' not in x:
+                    result.append(x)
+        return result
+
+    def fix_quotes(self, string):
+        temp = replace(string, "'", "\"")
+        fixed = replace(temp, '"','\"')
+        return fixed
 
     def list_to_str(self, ls):
         result = ''
@@ -34,38 +44,28 @@ class Parser:
 
     def clean(self, text):
         result = re.findall(r'>(.*?)</*', text, re.DOTALL)
-        return parser.list_to_str(result)
+
+        return parser.fix_quotes(parser.list_to_str(result))
 
     def get_data(self, page):
         article = parser.clean(parser.get_article(page))
         title = parser.get_title(page)
         return title, article        
 
-    # def get_data(self, page):
-    #     page = page = parser.get_page()
-    #     article = parser.clean(parser.get_article(page))
-
+    def run(self, links):
+        for link in links:
+            parser = Parser(link)
+            page = parser.get_page()
+            title, article = parser.get_data(page)
+            db.inserti(parser.fix_quotes(title), article)
 
 if __name__ == "__main__":
         db = Postgresdb()
         db.connect()
         db.create_table(TABLE_NAME)
-        #for i in range(1,3,1):
-            #print(i)
-        parser = Parser("https://habrahabr.ru/all/page{0}/".format(1))
-        page = parser.get_page()
-        #print parser
-        test = parser.get_links(page)
-        #print(test)
-        #title, article = parser.get_data(page)
-        #print title, article
-        # titles, links = parser.get_info(page)
-        # articles = parser.get_full_text(links)
-        # for i in range(2):
-        #     print(i)
-        #     title = fix_quotes(titles[i])
-        #     article = fix_quotes(articles[i])
-            #db.inserti(title, article)
-        #db.close()
-
-#<a href=(.*?) class="post__title_link">Запускаем GSM-сеть у себя дома</a>
+        for i in range(1,3):
+            parser = Parser("https://habrahabr.ru/all/page{0}/".format(i))
+            page = parser.get_page()
+            links = parser.get_links(page)
+            parser.run(links)
+        db.close()

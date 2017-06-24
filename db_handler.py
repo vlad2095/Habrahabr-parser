@@ -3,6 +3,7 @@
 import psycopg2 as db
 from settings import *
 
+
 class Postgresdb:
 
 	def __init__(self):
