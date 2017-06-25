@@ -15,7 +15,6 @@ class Parser:
 
     def get_links(self, page):
         result = []
-        temp = re.findall(r'class="posts shortcuts_items"(.*?)class="page__footer"*', page, re.DOTALL)
         temp = re.findall(r'(?:https?:\/\/)?(?:[\w\.]+)\.(?:[a-z]{2,6}\.?)(?:\/[\w\.]*)*\/?', page, re.DOTALL)
         for x in temp:            
             if x.startswith('https://habrahabr.ru/') and re.match('(.*?)(\d+)\/', x) is not None:
